@@ -6,13 +6,20 @@ const errorMessage = document.querySelector("#error-message");
 const noteCount = document.querySelector("#note-count");
 const notesList = document.querySelector("#notes-list");
 
-// Initialize notes array (in-memory)
-let notes = [];
+const searchInput = document.querySelector("#search-input");
+
+// Initialize notes array from localStorage (persistent)
+let notes = JSON.parse(localStorage.getItem("quicknotes")) || [];
 
 // Format date and time nicely
 function getFormattedDate() {
   const now = new Date();
   return now.toLocaleString();
+}
+
+// Save notes to localStorage
+function saveToLocalStorage() {
+  localStorage.setItem("quicknotes", JSON.stringify(notes));
 }
 
 // Update the count message dynamically
@@ -103,6 +110,7 @@ noteForm.addEventListener("submit", (e) => {
   };
 
   notes.push(newNote);
+  saveToLocalStorage();
   render();
 
   noteInput.value = "";
@@ -112,7 +120,21 @@ noteForm.addEventListener("submit", (e) => {
 // Delete note by ID
 function deleteNote(id) {
   notes = notes.filter((note) => note.id !== id);
+  saveToLocalStorage();
   render();
+}
+
+// Search notes by keyword
+function handleSearch() {
+  const searchTerm = searchInput.value.toLowerCase().trim();
+  const filtered = notes.filter((note) => 
+    note.text.toLowerCase().includes(searchTerm)
+  );
+  render(filtered);
+}
+
+if (searchInput) {
+  searchInput.addEventListener("input", handleSearch);
 }
 
 // Initial page load render
